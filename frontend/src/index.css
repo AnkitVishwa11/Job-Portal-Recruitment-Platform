@@ -1,0 +1,266 @@
+/* Bootstrap Import */
+@import '~bootstrap/dist/css/bootstrap.min.css';
+
+/* ========================================
+   Global Styles
+   ======================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f8f9fa;
+  color: #212529;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark Mode */
+body.dark-mode {
+  background-color: #1a1d23;
+  color: #e9ecef;
+}
+
+body.dark-mode .bg-light {
+  background-color: #1e2128 !important;
+}
+
+body.dark-mode .bg-white {
+  background-color: #22262e !important;
+}
+
+body.dark-mode .card {
+  background-color: #22262e;
+  border-color: #2d323a;
+}
+
+body.dark-mode .card-header {
+  background-color: #22262e !important;
+  border-bottom-color: #2d323a !important;
+}
+
+body.dark-mode .navbar-light {
+  background-color: #22262e !important;
+  border-bottom: 1px solid #2d323a;
+}
+
+body.dark-mode .text-muted {
+  color: #9ca3af !important;
+}
+
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+  background-color: #1a1d23;
+  border-color: #2d323a;
+  color: #e9ecef;
+}
+
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus {
+  background-color: #1a1d23;
+  border-color: #0d6efd;
+  color: #e9ecef;
+}
+
+body.dark-mode .input-group-text {
+  background-color: #1a1d23 !important;
+  border-color: #2d323a;
+  color: #9ca3af;
+}
+
+body.dark-mode .list-group-item {
+  background-color: #22262e;
+  border-color: #2d323a;
+  color: #e9ecef;
+}
+
+body.dark-mode .list-group-item:hover {
+  background-color: #2a2f38;
+}
+
+body.dark-mode .border-bottom {
+  border-bottom-color: #2d323a !important;
+}
+
+body.dark-mode .border-top {
+  border-top-color: #2d323a !important;
+}
+
+body.dark-mode .nav-tabs .nav-link {
+  color: #9ca3af;
+}
+
+body.dark-mode .nav-tabs .nav-link.active {
+  background-color: #22262e;
+  border-color: #2d323a;
+  color: #0d6efd;
+}
+
+body.dark-mode .page-link {
+  background-color: #22262e;
+  border-color: #2d323a;
+  color: #e9ecef;
+}
+
+body.dark-mode .page-item.active .page-link {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+body.dark-mode .page-item.disabled .page-link {
+  background-color: #1a1d23;
+  border-color: #2d323a;
+  color: #6c757d;
+}
+
+body.dark-mode .dropdown-menu {
+  background-color: #22262e;
+  border-color: #2d323a;
+}
+
+body.dark-mode .dropdown-item {
+  color: #e9ecef;
+}
+
+body.dark-mode .dropdown-item:hover {
+  background-color: #2a2f38;
+  color: #e9ecef;
+}
+
+body.dark-mode .progress {
+  background-color: #2d323a;
+}
+
+body.dark-mode .modal-content {
+  background-color: #22262e;
+  border-color: #2d323a;
+}
+
+body.dark-mode .hero-section {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%) !important;
+}
+
+body.dark-mode hr {
+  border-color: #2d323a;
+  opacity: 0.5;
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+
+.min-vh-50 {
+  min-height: 50vh;
+}
+
+.hover-shadow {
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.hover-shadow:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-2px);
+}
+
+.opacity-90 {
+  opacity: 0.9;
+}
+
+.opacity-10 {
+  opacity: 0.1;
+}
+
+.bg-opacity-10 {
+  --bs-bg-opacity: 0.1;
+}
+
+/* ========================================
+   Scrollbar
+   ======================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+  background: #444;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* ========================================
+   Toast Overrides
+   ======================================== */
+
+.Toastify__toast {
+  border-radius: 8px !important;
+  font-size: 0.9rem !important;
+}
+
+/* ========================================
+   Hero Section
+   ======================================== */
+
+.hero-section {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 50%, #0047b3 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%);
+  animation: heroGlow 15s ease-in-out infinite alternate;
+}
+
+@keyframes heroGlow {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(-30px, 30px) rotate(10deg); }
+}
+
+.hero-section > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ========================================
+   Responsive
+   ======================================== */
+
+@media (max-width: 768px) {
+  .card-body {
+    padding: 1rem !important;
+  }
+
+  .display-4 {
+    font-size: 2.2rem;
+  }
+}
+
+
