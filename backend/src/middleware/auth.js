@@ -3,6 +3,7 @@ const config = require('../config');
 const { User } = require('../models');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
+const { isDbConnected, MOCK_USER } = require('../utils/mockFallback');
 
 /**
  * Middleware to protect routes - verifies JWT token
@@ -28,6 +29,11 @@ const protect = catchAsync(async (req, res, next) => {
   try {
     // Verify token
     const decoded = jwt.verify(token, config.jwt.secret);
+
+    if (!isDbConnected()) {
+      req.user = MOCK_USER;
+      return next();
+    }
 
     // Check if user still exists
     const user = await User.findById(decoded.id);

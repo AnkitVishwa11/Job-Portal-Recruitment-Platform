@@ -1,6 +1,7 @@
 const authService = require('../services/auth.service');
 const catchAsync = require('../utils/catchAsync');
 const ApiResponse = require('../utils/ApiResponse');
+const { isDbConnected, MOCK_USER } = require('../utils/mockFallback');
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -14,6 +15,19 @@ const COOKIE_OPTIONS = {
  * @access  Public
  */
 const register = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    const mockAccessToken = 'mock-access-token-' + Date.now();
+    const mockRefreshToken = 'mock-refresh-token-' + Date.now();
+    res.cookie('refreshToken', mockRefreshToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    return ApiResponse.created(res, 'Registration successful (Demo Mode)', {
+      user: { ...MOCK_USER, email: req.body.email || MOCK_USER.email, role: req.body.role || MOCK_USER.role },
+      accessToken: mockAccessToken,
+      refreshToken: mockRefreshToken,
+    });
+  }
   const result = await authService.register(req.body);
 
   // Set refresh token as cookie
@@ -35,6 +49,20 @@ const register = catchAsync(async (req, res) => {
  * @access  Public
  */
 const login = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    const mockAccessToken = 'mock-access-token-' + Date.now();
+    const mockRefreshToken = 'mock-refresh-token-' + Date.now();
+    res.cookie('refreshToken', mockRefreshToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    const userRole = req.body.email?.includes('recruiter') ? 'recruiter' : (req.body.email?.includes('admin') ? 'admin' : 'jobseeker');
+    return ApiResponse.success(res, 'Login successful (Demo Mode)', {
+      user: { ...MOCK_USER, email: req.body.email || MOCK_USER.email, role: userRole },
+      accessToken: mockAccessToken,
+      refreshToken: mockRefreshToken,
+    });
+  }
   const { email, password } = req.body;
   const result = await authService.login(email, password);
 
@@ -88,6 +116,9 @@ const logout = catchAsync(async (req, res) => {
  * @access  Private
  */
 const getProfile = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'Profile retrieved successfully (Demo Mode)', { user: req.user || MOCK_USER });
+  }
   const user = await authService.getProfile(req.user._id);
   return ApiResponse.success(res, 'Profile retrieved successfully', { user });
 });

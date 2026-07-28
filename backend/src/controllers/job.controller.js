@@ -1,6 +1,7 @@
 const jobService = require('../services/job.service');
 const catchAsync = require('../utils/catchAsync');
 const ApiResponse = require('../utils/ApiResponse');
+const { isDbConnected, MOCK_JOBS, MOCK_STATS } = require('../utils/mockFallback');
 
 /**
  * @desc    Create a new job
@@ -19,6 +20,10 @@ const createJob = catchAsync(async (req, res) => {
  * @access  Public
  */
 const getJobById = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    const job = MOCK_JOBS.find((j) => j._id === req.params.id) || MOCK_JOBS[0];
+    return ApiResponse.success(res, 'Job retrieved successfully (Demo Mode)', { job });
+  }
   const job = await jobService.getJobById(req.params.id);
   // Increment view count
   await jobService.incrementViewCount(req.params.id);
@@ -87,6 +92,16 @@ const getRecruiterJobs = catchAsync(async (req, res) => {
  * @access  Public
  */
 const searchJobs = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'Jobs retrieved successfully (Demo Mode)', {
+      jobs: MOCK_JOBS,
+      total: MOCK_JOBS.length,
+      page: 1,
+      limit: 10,
+      totalPages: 1,
+      stats: MOCK_STATS,
+    });
+  }
   const { page, limit, skip } = req.pagination;
   const filters = {
     search: req.query.search,
