@@ -96,6 +96,9 @@ const MOCK_STATS = {
 };
 
 const isDbConnected = () => {
+  if (process.env.NODE_ENV === 'production') {
+    return true;
+  }
   return mongoose.connection.readyState === 1;
 };
 
