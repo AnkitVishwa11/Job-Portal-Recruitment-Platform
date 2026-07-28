@@ -1,7 +1,7 @@
 [build]
   command = "npm run build"
   publish = "frontend/build"
-  functions = "netlify/functions"
+  functions = "backend/functions"
 
 [build.environment]
   NODE_VERSION = "18"
@@ -9,26 +9,7 @@
   DISABLE_SWAGGER = "true"
 
 [functions]
-  node_bundler = "esbuild"
-  external_node_modules = [
-    "swagger-ui-express",
-    "swagger-jsdoc",
-    "mongoose",
-    "express",
-    "multer",
-    "winston",
-    "compression",
-    "morgan",
-    "helmet",
-    "express-rate-limit",
-    "express-validator",
-    "bcryptjs",
-    "jsonwebtoken",
-    "cookie-parser",
-    "cors",
-    "xss-clean",
-    "serverless-http"
-  ]
+  node_bundler = "nft"
 
 # API requests → Netlify serverless function
 [[redirects]]
