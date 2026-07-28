@@ -23,13 +23,17 @@ router.get('/health', (req, res) => {
 // Temporary Database Seeder Route
 router.get('/seed', async (req, res, next) => {
   try {
-    const User = require('../models/User');
+        const User = require('../models/User');
     const Company = require('../models/Company');
     const Job = require('../models/Job');
+    const Application = require('../models/Application');
+    const SavedJob = require('../models/SavedJob');
 
     // Clean existing collections to start fresh
     await Job.deleteMany({});
     await Company.deleteMany({});
+    await Application.deleteMany({});
+    await SavedJob.deleteMany({});
 
     // 1. Recruiter 1: Razorpay
     let recruiter1 = await User.findOne({ email: 'recruiter@example.com' });

@@ -19,7 +19,7 @@ const JobSeekerDashboard = () => {
           dashboardApi.getJobSeekerStats(),
           applicationApi.getUserApplications({ limit: 5, sort: '-createdAt' }),
         ]);
-        setStats(statsRes.data.data);
+        setStats(statsRes.data.data.stats || statsRes.data.data);
         setRecentApplications(appsRes.data.data.applications || []);
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to load dashboard');
@@ -76,7 +76,7 @@ const JobSeekerDashboard = () => {
                 <div className="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-2" style={{ width: '48px', height: '48px' }}>
                   <i className="bi bi-check-circle text-success fs-5"></i>
                 </div>
-                <h3 className="fw-bold mb-0">{stats?.shortlisted || 0}</h3>
+                <h3 className="fw-bold mb-0">{stats?.shortlisted || stats?.shortlistedApplications || 0}</h3>
                 <small className="text-muted">Shortlisted</small>
               </div>
             </div>
@@ -87,7 +87,7 @@ const JobSeekerDashboard = () => {
                 <div className="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-2" style={{ width: '48px', height: '48px' }}>
                   <i className="bi bi-trophy text-success fs-5"></i>
                 </div>
-                <h3 className="fw-bold mb-0">{stats?.hired || 0}</h3>
+                <h3 className="fw-bold mb-0">{stats?.hired || stats?.hiredApplications || 0}</h3>
                 <small className="text-muted">Hired</small>
               </div>
             </div>
