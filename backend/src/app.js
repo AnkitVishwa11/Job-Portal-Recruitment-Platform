@@ -89,7 +89,15 @@ app.use(cookieParser(config.cookie.secret));
 
 // Fallback manual parser for serverless environments (Netlify)
 app.use((req, res, next) => {
-  if ((!req.body || Object.keys(req.body).length === 0) && req.apiGateway?.event?.body) {
+  if (Buffer.isBuffer(req.body)) {
+    try {
+      const bodyStr = req.body.toString('utf8');
+      req.body = JSON.parse(bodyStr);
+      console.log('Decoded and parsed Buffer req.body:', req.body);
+    } catch (err) {
+      console.error('Failed to parse Buffer body:', err.message);
+    }
+  } else if ((!req.body || Object.keys(req.body).length === 0) && req.apiGateway?.event?.body) {
     try {
       const rawBody = req.apiGateway.event.body;
       if (typeof rawBody === 'object') {
