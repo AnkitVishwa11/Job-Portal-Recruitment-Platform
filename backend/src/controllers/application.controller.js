@@ -8,11 +8,17 @@ const ApiResponse = require('../utils/ApiResponse');
  * @access  Private/JobSeeker
  */
 const applyForJob = catchAsync(async (req, res) => {
+  let resumeValue = req.body.resume;
+  if (req.file) {
+    const base64Data = req.file.buffer.toString('base64');
+    resumeValue = `data:${req.file.mimetype};base64,${base64Data}`;
+  }
+
   const application = await applicationService.applyForJob(
     req.body.jobId,
     req.user._id,
     {
-      resume: req.file ? req.file.path : req.body.resume,
+      resume: resumeValue,
       coverLetter: req.body.coverLetter,
     }
   );
@@ -138,27 +144,51 @@ const downloadResume = catchAsync(async (req, res) => {
     throw new ApiError(404, 'No resume found for this application');
   }
 
-  const path = require('path');
-  const fs = require('fs');
-  const resumePath = application.resume;
+  const resumeValue = application.resume;
 
-  // Check if file exists
-  if (!fs.existsSync(resumePath)) {
-    throw new ApiError(404, 'Resume file not found on server');
+  if (resumeValue.startsWith('data:')) {
+    const matches = resumeValue.match(/^data:([^;]+);base64,(.+)$/);
+    if (!matches) {
+      throw new ApiError(400, 'Invalid resume file format');
+    }
+    const contentType = matches[1];
+    const base64Data = matches[2];
+    const buffer = Buffer.from(base64Data, 'base64');
+
+    // Guess extension from contentType
+    let ext = '.pdf';
+    if (contentType.includes('word') || contentType.includes('msword')) {
+      ext = contentType.includes('officedocument') ? '.docx' : '.doc';
+    }
+
+    const filename = `resume_${application.userId?.firstName || 'candidate'}_${application.userId?.lastName || ''}${ext}`;
+
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    return res.send(buffer);
+  } else {
+    const path = require('path');
+    const fs = require('fs');
+    const resumePath = resumeValue;
+
+    // Check if file exists
+    if (!fs.existsSync(resumePath)) {
+      throw new ApiError(404, 'Resume file not found on server');
+    }
+
+    const ext = path.extname(resumePath).toLowerCase();
+    const mimeTypes = {
+      '.pdf': 'application/pdf',
+      '.doc': 'application/msword',
+      '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    };
+
+    const filename = `resume_${application.userId?.firstName || 'candidate'}_${application.userId?.lastName || ''}${ext}`;
+
+    res.setHeader('Content-Type', mimeTypes[ext] || 'application/octet-stream');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.sendFile(path.resolve(resumePath));
   }
-
-  const ext = path.extname(resumePath).toLowerCase();
-  const mimeTypes = {
-    '.pdf': 'application/pdf',
-    '.doc': 'application/msword',
-    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  };
-
-  const filename = `resume_${application.userId?.firstName || 'candidate'}_${application.userId?.lastName || ''}${ext}`;
-
-  res.setHeader('Content-Type', mimeTypes[ext] || 'application/octet-stream');
-  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-  res.sendFile(resumePath, { root: '.' });
 });
 
 module.exports = {
