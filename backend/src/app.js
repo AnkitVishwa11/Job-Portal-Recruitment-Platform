@@ -70,22 +70,28 @@ if (config.env === 'development') {
 // API Documentation (Swagger)
 // =====================================================
 
-const swaggerUi = require('swagger-ui-express');
-const swaggerSpec = require('./config/swagger');
+// =====================================================
+// API Documentation (Swagger)
+// =====================================================
 
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'Job Portal API Docs',
-  swaggerOptions: {
-    persistAuthorization: true,
-  },
-}));
+if (!process.env.DISABLE_SWAGGER) {
+  const swaggerUi = require('swagger-ui-express');
+  const swaggerSpec = require('./config/swagger');
 
-// Serve raw swagger JSON
-app.get('/api/docs.json', (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.send(swaggerSpec);
-});
+  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'Job Portal API Docs',
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  }));
+
+  // Serve raw swagger JSON
+  app.get('/api/docs.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
+  });
+}
 
 // =====================================================
 // Static Files

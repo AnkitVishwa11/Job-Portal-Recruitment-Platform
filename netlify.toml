@@ -8,7 +8,7 @@
   CI = "false"
 
 [functions]
-  node_bundler = "esbuild"
+  node_bundler = "ncc"
 
 # API requests redirected to Netlify serverless function
 [[redirects]]
