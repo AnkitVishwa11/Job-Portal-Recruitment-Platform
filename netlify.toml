@@ -6,9 +6,11 @@
 [build.environment]
   NODE_VERSION = "18"
   CI = "false"
+  DISABLE_SWAGGER = "true"
 
 [functions]
-  node_bundler = "nft"
+  node_bundler = "none"
+  included_files = ["backend/**"]
 
 # API requests redirected to Netlify serverless function
 [[redirects]]
