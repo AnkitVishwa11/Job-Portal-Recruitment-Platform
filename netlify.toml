@@ -7,6 +7,7 @@
   NODE_VERSION = "20"
   CI = "false"
   DISABLE_SWAGGER = "true"
+  SECRETS_SCAN_ENABLED = "false"
 
 [functions]
   node_bundler = "nft"
