@@ -1,40 +1,27 @@
-const express = require('express');
-const router = express.Router();
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env.production') });
+const mongoose = require('mongoose');
+const User = require('../models/User');
+const Company = require('../models/Company');
+const Job = require('../models/Job');
+const connectDB = require('../config/database');
 
-const authRoutes = require('./auth.routes');
-const companyRoutes = require('./company.routes');
-const jobRoutes = require('./job.routes');
-const applicationRoutes = require('./application.routes');
-const savedJobRoutes = require('./savedJob.routes');
-const adminRoutes = require('./admin.routes');
-const notificationRoutes = require('./notification.routes');
-const dashboardRoutes = require('./dashboard.routes');
-
-// API health check
-router.get('/health', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Job Portal API is running',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-  });
-});
-
-// Temporary Database Seeder Route
-router.get('/seed', async (req, res, next) => {
+const seedData = async () => {
   try {
-    const User = require('../models/User');
-    const Company = require('../models/Company');
-    const Job = require('../models/Job');
+    console.log('Connecting to database for seeding...');
+    await connectDB();
+    console.log('Database connected successfully!');
 
-    // Clean existing collections to start fresh
+    // Clean existing collection to start clean
+    console.log('Cleaning existing Jobs and Companies...');
     await Job.deleteMany({});
     await Company.deleteMany({});
+    console.log('Collections cleaned.');
 
-    // 1. Recruiter 1: Razorpay
-    let recruiter1 = await User.findOne({ email: 'recruiter@example.com' });
-    if (!recruiter1) {
-      recruiter1 = await User.create({
+    // 1. Create or Find Recruiter User
+    let recruiter = await User.findOne({ email: 'recruiter@example.com' });
+    if (!recruiter) {
+      console.log('Creating default recruiter user...');
+      recruiter = await User.create({
         firstName: 'Aravind',
         lastName: 'Sharma',
         email: 'recruiter@example.com',
@@ -42,9 +29,18 @@ router.get('/seed', async (req, res, next) => {
         role: 'recruiter',
         phone: '9876543210'
       });
+      console.log('Default recruiter created.');
+    } else {
+      console.log('Default recruiter user found.');
     }
+
+    // 2. Create Companies
+    console.log('Creating Indian companies...');
+    const createdCompanies = [];
+
+    // Company 1: Razorpay (Recruiter 1)
     const company1 = await Company.create({
-      userId: recruiter1._id,
+      userId: recruiter._id,
       companyName: 'Razorpay',
       industry: 'FinTech',
       companySize: '501-1000',
@@ -58,8 +54,9 @@ router.get('/seed', async (req, res, next) => {
         zipCode: '560034'
       }
     });
+    createdCompanies.push(company1);
 
-    // 2. Recruiter 2: Flipkart
+    // Let's create Recruiter 2 for Flipkart
     let recruiter2 = await User.findOne({ email: 'recruiter2@example.com' });
     if (!recruiter2) {
       recruiter2 = await User.create({
@@ -86,8 +83,9 @@ router.get('/seed', async (req, res, next) => {
         zipCode: '560103'
       }
     });
+    createdCompanies.push(company2);
 
-    // 3. Recruiter 3: Zomato
+    // Let's create Recruiter 3 for Zomato
     let recruiter3 = await User.findOne({ email: 'recruiter3@example.com' });
     if (!recruiter3) {
       recruiter3 = await User.create({
@@ -114,8 +112,9 @@ router.get('/seed', async (req, res, next) => {
         zipCode: '122002'
       }
     });
+    createdCompanies.push(company3);
 
-    // 4. Recruiter 4: TCS
+    // Let's create Recruiter 4 for TCS
     let recruiter4 = await User.findOne({ email: 'recruiter4@example.com' });
     if (!recruiter4) {
       recruiter4 = await User.create({
@@ -142,12 +141,16 @@ router.get('/seed', async (req, res, next) => {
         zipCode: '411057'
       }
     });
+    createdCompanies.push(company4);
 
-    // Create Indian Job Postings
+    console.log('Companies created successfully.');
+
+    // 3. Create Jobs
+    console.log('Creating Indian job postings...');
     await Job.create([
       {
         companyId: company1._id,
-        userId: recruiter1._id,
+        userId: recruiter._id,
         title: 'Senior Frontend Developer (React)',
         description: 'We are looking for a Senior Frontend Developer specializing in React.js to build, scale and optimize merchant dashboard features.',
         requirements: [
@@ -259,24 +262,12 @@ router.get('/seed', async (req, res, next) => {
       }
     ]);
 
-    res.status(200).json({
-      success: true,
-      message: 'Indian companies and jobs seeded successfully in live MongoDB Atlas!'
-    });
+    console.log('Indian job postings seeded successfully!');
+    process.exit(0);
   } catch (err) {
-    next(err);
+    console.error('Seeding failed with error:', err.message);
+    process.exit(1);
   }
-});
+};
 
-// API routes
-router.use('/auth', authRoutes);
-router.use('/companies', companyRoutes);
-router.use('/jobs', jobRoutes);
-router.use('/applications', applicationRoutes);
-router.use('/saved-jobs', savedJobRoutes);
-router.use('/admin', adminRoutes);
-router.use('/notifications', notificationRoutes);
-router.use('/dashboard', dashboardRoutes);
-
-module.exports = router;
-
+seedData();
