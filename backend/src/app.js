@@ -12,6 +12,9 @@ const compression = require('./utils/compression');
 
 const app = express();
 
+// Trust proxy for header population on Netlify/reverse proxies
+app.set('trust proxy', 1);
+
 // =====================================================
 // Security & Performance Middleware
 // =====================================================
@@ -58,7 +61,7 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'test' && !process.env.NETLIFY && !process.env.LAMBDA_TASK_ROOT) {
   app.use('/api', limiter);
 }
 
