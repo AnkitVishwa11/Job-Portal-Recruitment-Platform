@@ -81,7 +81,7 @@ const deleteJob = async (jobId, userId) => {
   const job = await Job.findOneAndUpdate(
     { _id: jobId, userId },
     { isActive: false, status: 'closed' },
-    { new: true }
+    { returnDocument: 'after' }
   );
 
   if (!job) {
@@ -99,7 +99,7 @@ const closeJob = async (jobId, userId) => {
   const job = await Job.findOneAndUpdate(
     { _id: jobId, userId },
     { status: 'closed' },
-    { new: true }
+    { returnDocument: 'after' }
   );
 
   if (!job) {

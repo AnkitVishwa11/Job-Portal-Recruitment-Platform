@@ -154,7 +154,7 @@ router.put(
     const user = await User.findByIdAndUpdate(
       req.params.id,
       { role },
-      { new: true, runValidators: true }
+      { returnDocument: 'after', runValidators: true }
     );
     if (!user) {
       throw new ApiError(404, 'User not found');

@@ -44,7 +44,9 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 
-app.use('/api', limiter);
+if (process.env.NODE_ENV !== 'test') {
+  app.use('/api', limiter);
+}
 
 // =====================================================
 // Body Parsing Middleware

@@ -30,7 +30,7 @@ describe('ApiResponse', () => {
       expect(mockRes.json).toHaveBeenCalledWith({
         success: true,
         message: 'Created',
-        data: undefined,
+        data: null,
       });
     });
   });
@@ -83,5 +83,3 @@ describe('ApiResponse', () => {
     });
   });
 });
-
-

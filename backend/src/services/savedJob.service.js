@@ -44,7 +44,7 @@ const unsaveJob = async (savedJobId, userId) => {
   const savedJob = await SavedJob.findOneAndUpdate(
     { _id: savedJobId, userId },
     { isActive: false },
-    { new: true }
+    { returnDocument: 'after' }
   );
 
   if (!savedJob) {
@@ -117,7 +117,7 @@ const updateSavedJobNotes = async (savedJobId, userId, notes) => {
   const savedJob = await SavedJob.findOneAndUpdate(
     { _id: savedJobId, userId },
     { notes },
-    { new: true }
+    { returnDocument: 'after' }
   );
 
   if (!savedJob) {

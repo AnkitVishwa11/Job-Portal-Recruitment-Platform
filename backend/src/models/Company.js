@@ -68,7 +68,7 @@ const companySchema = new mongoose.Schema(
   }
 );
 
-companySchema.index({ userId: 1 });
+// Note: userId index is created automatically by unique: true in the schema field definition
 companySchema.index({ companyName: 'text', description: 'text' });
 
 module.exports = mongoose.model('Company', companySchema);

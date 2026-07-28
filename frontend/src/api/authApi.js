@@ -66,14 +66,14 @@ export const savedJobApi = {
 export const notificationApi = {
   getAll: (params) => axiosInstance.get('/notifications', { params }),
   getUnreadCount: () => axiosInstance.get('/notifications/unread-count'),
-  markAsRead: (id) => axiosInstance.put(`/notifications/${id}/read`),
-  markAllAsRead: () => axiosInstance.put('/notifications/read-all'),
+  markAsRead: (id) => axiosInstance.patch(`/notifications/${id}/read`),
+  markAllAsRead: () => axiosInstance.patch('/notifications/read-all'),
   delete: (id) => axiosInstance.delete(`/notifications/${id}`),
 };
 
 export const dashboardApi = {
   getRecruiterStats: () => axiosInstance.get('/dashboard/recruiter'),
-  getJobSeekerStats: () => axiosInstance.get('/dashboard/job-seeker'),
+  getJobSeekerStats: () => axiosInstance.get('/dashboard/jobseeker'),
   getAdminStats: () => axiosInstance.get('/dashboard/admin'),
 };
 

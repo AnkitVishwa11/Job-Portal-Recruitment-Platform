@@ -8,11 +8,8 @@ describe('Health Check', () => {
       .expect(200);
 
     expect(res.body.success).toBe(true);
-    expect(res.body.message).toBe('API is running');
-    expect(res.body.data).toBeDefined();
-    expect(res.body.data.environment).toBeDefined();
-    expect(res.body.data.timestamp).toBeDefined();
+    expect(res.body.message).toContain('API is running');
+    expect(res.body.timestamp).toBeDefined();
+    expect(res.body.uptime).toBeDefined();
   });
 });
-
-

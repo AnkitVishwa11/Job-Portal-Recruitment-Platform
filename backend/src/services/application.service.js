@@ -260,7 +260,7 @@ const withdrawApplication = async (applicationId, userId) => {
         },
       },
     },
-    { new: true }
+    { returnDocument: 'after' }
   );
 
   if (!application) {

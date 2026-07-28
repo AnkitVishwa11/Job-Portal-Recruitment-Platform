@@ -26,7 +26,7 @@ describe('Auth Middleware', () => {
       expect(mockNext).toHaveBeenCalledWith(expect.any(ApiError));
       expect(mockNext.mock.calls[0][0].statusCode).toBe(401);
       expect(mockNext.mock.calls[0][0].message).toBe(
-        'Not authorized, no token provided'
+        'You are not logged in. Please log in to access this resource.'
       );
     });
 
@@ -40,7 +40,7 @@ describe('Auth Middleware', () => {
     });
 
     it('should throw error if user not found', async () => {
-      const token = jwt.sign({ id: 'nonexistent' }, process.env.JWT_SECRET || 'test_secret');
+      const token = jwt.sign({ id: 'nonexistent' }, process.env.JWT_SECRET || 'fallback_jwt_secret');
       mockReq.headers.authorization = `Bearer ${token}`;
       User.findById.mockResolvedValue(null);
 
@@ -49,19 +49,24 @@ describe('Auth Middleware', () => {
       expect(mockNext).toHaveBeenCalledWith(expect.any(ApiError));
       expect(mockNext.mock.calls[0][0].statusCode).toBe(401);
       expect(mockNext.mock.calls[0][0].message).toBe(
-        'User not found, session expired'
+        'The user belonging to this token no longer exists.'
       );
     });
 
     it('should set req.user and call next for valid token', async () => {
-      const user = { _id: 'validId', role: 'jobseeker' };
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'test_secret');
+      const user = {
+        _id: 'validId',
+        role: 'jobseeker',
+        isActive: true,
+        changedPasswordAfter: jest.fn().mockReturnValue(false),
+      };
+      const token = jwt.sign({ id: user._id, iat: Math.floor(Date.now() / 1000) }, process.env.JWT_SECRET || 'fallback_jwt_secret');
       mockReq.headers.authorization = `Bearer ${token}`;
       User.findById.mockResolvedValue(user);
 
       await protect(mockReq, mockRes, mockNext);
 
-      expect(mockReq.user).toEqual(user);
+      expect(mockReq.user).toBe(user);
       expect(mockNext).toHaveBeenCalledWith();
     });
   });
@@ -87,5 +92,3 @@ describe('Auth Middleware', () => {
     });
   });
 });
-
-

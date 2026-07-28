@@ -22,7 +22,7 @@ const protect = catchAsync(async (req, res, next) => {
   }
 
   if (!token) {
-    throw new ApiError(401, 'You are not logged in. Please log in to access this resource.');
+    return next(new ApiError(401, 'You are not logged in. Please log in to access this resource.'));
   }
 
   try {
@@ -32,17 +32,17 @@ const protect = catchAsync(async (req, res, next) => {
     // Check if user still exists
     const user = await User.findById(decoded.id);
     if (!user) {
-      throw new ApiError(401, 'The user belonging to this token no longer exists.');
+      return next(new ApiError(401, 'The user belonging to this token no longer exists.'));
     }
 
     // Check if user is active
     if (!user.isActive) {
-      throw new ApiError(401, 'Your account has been deactivated. Please contact support.');
+      return next(new ApiError(401, 'Your account has been deactivated. Please contact support.'));
     }
 
     // Check if password was changed after token was issued
-    if (user.changedPasswordAfter(decoded.iat)) {
-      throw new ApiError(401, 'Password recently changed. Please log in again.');
+    if (user.changedPasswordAfter && user.changedPasswordAfter(decoded.iat)) {
+      return next(new ApiError(401, 'Password recently changed. Please log in again.'));
     }
 
     // Grant access
@@ -50,9 +50,9 @@ const protect = catchAsync(async (req, res, next) => {
     next();
   } catch (error) {
     if (error instanceof ApiError) {
-      throw error;
+      return next(error);
     }
-    throw new ApiError(401, 'Invalid or expired token. Please log in again.');
+    return next(new ApiError(401, 'Invalid or expired token. Please log in again.'));
   }
 });
 
@@ -63,10 +63,12 @@ const protect = catchAsync(async (req, res, next) => {
  */
 const authorize = (...roles) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      throw new ApiError(
-        403,
-        `Role '${req.user.role}' is not authorized to access this resource. Required roles: ${roles.join(', ')}`
+    if (!req.user || !roles.includes(req.user.role)) {
+      return next(
+        new ApiError(
+          403,
+          `Role '${req.user ? req.user.role : 'undefined'}' is not authorized to access this resource. Required roles: ${roles.join(', ')}`
+        )
       );
     }
     next();
@@ -77,8 +79,8 @@ const authorize = (...roles) => {
  * Middleware to check if user is admin
  */
 const isAdmin = (req, res, next) => {
-  if (req.user.role !== 'admin') {
-    throw new ApiError(403, 'Only administrators can access this resource.');
+  if (!req.user || req.user.role !== 'admin') {
+    return next(new ApiError(403, 'Only administrators can access this resource.'));
   }
   next();
 };
@@ -87,8 +89,8 @@ const isAdmin = (req, res, next) => {
  * Middleware to check if user is recruiter
  */
 const isRecruiter = (req, res, next) => {
-  if (req.user.role !== 'recruiter') {
-    throw new ApiError(403, 'Only recruiters can access this resource.');
+  if (!req.user || req.user.role !== 'recruiter') {
+    return next(new ApiError(403, 'Only recruiters can access this resource.'));
   }
   next();
 };
@@ -97,11 +99,10 @@ const isRecruiter = (req, res, next) => {
  * Middleware to check if user is job seeker
  */
 const isJobSeeker = (req, res, next) => {
-  if (req.user.role !== 'jobseeker') {
-    throw new ApiError(403, 'Only job seekers can access this resource.');
+  if (!req.user || req.user.role !== 'jobseeker') {
+    return next(new ApiError(403, 'Only job seekers can access this resource.'));
   }
   next();
 };
 
 module.exports = { protect, authorize, isAdmin, isRecruiter, isJobSeeker };
-

@@ -47,7 +47,7 @@ const verifyRefreshToken = (token) => {
 const register = async (userData) => {
   const existingUser = await User.findOne({ email: userData.email });
   if (existingUser) {
-    throw new ApiError(400, 'An account with this email already exists');
+    throw new ApiError(409, 'An account with this email already exists');
   }
 
   const user = await User.create({
@@ -178,7 +178,7 @@ const updateProfile = async (userId, updateData) => {
   });
 
   const user = await User.findByIdAndUpdate(userId, updates, {
-    new: true,
+    returnDocument: 'after',
     runValidators: true,
   });
 

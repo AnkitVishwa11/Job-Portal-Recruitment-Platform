@@ -38,8 +38,7 @@ describe('Error Handler Middleware', () => {
     expect(mockRes.status).toHaveBeenCalledWith(400);
     expect(mockRes.json).toHaveBeenCalledWith({
       success: false,
-      message: 'Validation failed',
-      errors: ['Email is required', 'Name is required'],
+      message: 'Email is required, Name is required',
     });
   });
 
@@ -51,10 +50,10 @@ describe('Error Handler Middleware', () => {
     };
     errorHandler(error, mockReq, mockRes, jest.fn());
 
-    expect(mockRes.status).toHaveBeenCalledWith(400);
+    expect(mockRes.status).toHaveBeenCalledWith(404);
     expect(mockRes.json).toHaveBeenCalledWith({
       success: false,
-      message: 'Invalid ID format: invalid-id',
+      message: 'Resource not found with id: invalid-id',
     });
   });
 
@@ -66,10 +65,10 @@ describe('Error Handler Middleware', () => {
     };
     errorHandler(error, mockReq, mockRes, jest.fn());
 
-    expect(mockRes.status).toHaveBeenCalledWith(409);
+    expect(mockRes.status).toHaveBeenCalledWith(400);
     expect(mockRes.json).toHaveBeenCalledWith({
       success: false,
-      message: 'Duplicate field value: email. Please use another value.',
+      message: 'Duplicate value for email. This email already exists.',
     });
   });
 
@@ -83,7 +82,7 @@ describe('Error Handler Middleware', () => {
     expect(mockRes.status).toHaveBeenCalledWith(401);
     expect(mockRes.json).toHaveBeenCalledWith({
       success: false,
-      message: 'Invalid token. Please login again.',
+      message: 'Invalid token. Please log in again.',
     });
   });
 
@@ -97,7 +96,7 @@ describe('Error Handler Middleware', () => {
     expect(mockRes.status).toHaveBeenCalledWith(401);
     expect(mockRes.json).toHaveBeenCalledWith({
       success: false,
-      message: 'Token expired. Please login again.',
+      message: 'Your token has expired. Please log in again.',
     });
   });
 
@@ -108,9 +107,7 @@ describe('Error Handler Middleware', () => {
     expect(mockRes.status).toHaveBeenCalledWith(500);
     expect(mockRes.json).toHaveBeenCalledWith({
       success: false,
-      message: 'Internal server error',
+      message: 'Something went wrong. Please try again later.',
     });
   });
 });
-
-

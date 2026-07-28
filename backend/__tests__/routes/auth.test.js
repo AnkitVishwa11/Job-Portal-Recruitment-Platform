@@ -24,7 +24,8 @@ describe('Auth Routes', () => {
       expect(res.body.data.user.email).toBe(validUserData.email);
       expect(res.body.data.user.password).toBeUndefined();
       expect(res.body.data.accessToken).toBeDefined();
-      expect(res.body.data.refreshToken).toBeDefined();
+      // refreshToken is set as an httpOnly cookie, not in response body
+      expect(res.headers['set-cookie']).toBeDefined();
     });
 
     it('should not register with existing email', async () => {
@@ -76,7 +77,8 @@ describe('Auth Routes', () => {
 
       expect(res.body.success).toBe(true);
       expect(res.body.data.accessToken).toBeDefined();
-      expect(res.body.data.refreshToken).toBeDefined();
+      // refreshToken is returned as an httpOnly cookie
+      expect(res.headers['set-cookie']).toBeDefined();
     });
 
     it('should not login with wrong password', async () => {
@@ -121,7 +123,9 @@ describe('Auth Routes', () => {
         .expect(200);
 
       expect(res.body.success).toBe(true);
-      expect(res.body.data.email).toBe(validUserData.email);
+      // profile is returned as data.user (wrapped)
+      expect(res.body.data.user).toBeDefined();
+      expect(res.body.data.user.email).toBe(validUserData.email);
     });
 
     it('should not get profile without token', async () => {
@@ -134,24 +138,29 @@ describe('Auth Routes', () => {
   });
 
   describe('POST /api/auth/refresh-token', () => {
-    let refreshToken;
+    let refreshTokenCookie;
 
     beforeEach(async () => {
       const res = await request(app)
         .post('/api/auth/register')
         .send(validUserData);
-      refreshToken = res.body.data.refreshToken;
+      // Extract the refresh token from the cookie header
+      const cookies = res.headers['set-cookie'];
+      if (cookies) {
+        refreshTokenCookie = cookies.find((c) => c.startsWith('refreshToken='));
+      }
     });
 
-    it('should refresh token with valid refresh token', async () => {
+    it('should refresh token using cookie', async () => {
       const res = await request(app)
         .post('/api/auth/refresh-token')
-        .send({ refreshToken })
+        .set('Cookie', refreshTokenCookie || '')
         .expect(200);
 
       expect(res.body.success).toBe(true);
       expect(res.body.data.accessToken).toBeDefined();
-      expect(res.body.data.refreshToken).toBeDefined();
+      // New refresh token also set as cookie
+      expect(res.headers['set-cookie']).toBeDefined();
     });
 
     it('should not refresh with invalid refresh token', async () => {
@@ -164,5 +173,3 @@ describe('Auth Routes', () => {
     });
   });
 });
-
-
