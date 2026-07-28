@@ -74,12 +74,18 @@ app.use(cookieParser(config.cookie.secret));
 app.use((req, res, next) => {
   if ((!req.body || Object.keys(req.body).length === 0) && req.apiGateway?.event?.body) {
     try {
-      let bodyStr = req.apiGateway.event.body;
-      if (req.apiGateway.event.isBase64Encoded) {
-        bodyStr = Buffer.from(bodyStr, 'base64').toString('utf8');
+      const rawBody = req.apiGateway.event.body;
+      if (typeof rawBody === 'object') {
+        req.body = rawBody;
+        console.log('Manually assigned request body object from event:', req.body);
+      } else {
+        let bodyStr = rawBody;
+        if (req.apiGateway.event.isBase64Encoded) {
+          bodyStr = Buffer.from(bodyStr, 'base64').toString('utf8');
+        }
+        req.body = JSON.parse(bodyStr);
+        console.log('Manually parsed request body string from event:', req.body);
       }
-      req.body = JSON.parse(bodyStr);
-      console.log('Manually parsed request body from event:', req.body);
     } catch (err) {
       console.error('Manual body parser error:', err.message);
     }
