@@ -9,8 +9,7 @@
   DISABLE_SWAGGER = "true"
 
 [functions]
-  node_bundler = "none"
-  included_files = ["backend/**"]
+  node_bundler = "nft"
 
 # API requests redirected to Netlify serverless function
 [[redirects]]
