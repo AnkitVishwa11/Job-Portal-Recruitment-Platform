@@ -25,6 +25,7 @@ const register = catchAsync(async (req, res) => {
   return ApiResponse.created(res, 'Registration successful', {
     user: result.user,
     accessToken: result.accessToken,
+    refreshToken: result.refreshToken,
   });
 });
 

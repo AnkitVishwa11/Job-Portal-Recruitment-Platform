@@ -18,6 +18,7 @@ const Register = () => {
     role: USER_ROLES.JOBSEEKER,
     phone: '',
   });
+  const [agreed, setAgreed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
@@ -54,6 +55,10 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!agreed) {
+      toast.error('Please agree to the Terms of Service and Privacy Policy');
+      return;
+    }
     setIsSubmitting(true);
 
     try {
@@ -76,6 +81,7 @@ const Register = () => {
       };
       navigate(dashboardRoutes[user.role] || '/');
     } catch (err) {
+      console.error('Registration error:', err);
       toast.error(err.message || 'Registration failed. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -278,7 +284,13 @@ const Register = () => {
                         </div>
                       </div>
                       <div className="form-check mb-3">
-                        <input type="checkbox" className="form-check-input" id="agree" required />
+                        <input
+                          type="checkbox"
+                          className="form-check-input"
+                          id="agree"
+                          checked={agreed}
+                          onChange={(e) => setAgreed(e.target.checked)}
+                        />
                         <label className="form-check-label small" htmlFor="agree">
                           I agree to the{' '}
                           <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a>{' '}
