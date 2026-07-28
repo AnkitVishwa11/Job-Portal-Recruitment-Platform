@@ -6,7 +6,11 @@ const app = require('../src/app');
 const connectDB = require('../src/config/database');
 
 let conn = null;
-const serverlessHandler = serverless(app);
+const serverlessHandler = serverless(app, {
+  request: (request, event, context) => {
+    request.apiGateway = { event, context };
+  },
+});
 
 module.exports.handler = async (event, context) => {
   // Diagnostic logs to check environment variables in Netlify function
@@ -15,6 +19,12 @@ module.exports.handler = async (event, context) => {
   console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
   console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
   console.log('DISABLE_SWAGGER:', process.env.DISABLE_SWAGGER);
+  console.log('Request Path:', event.path);
+  console.log('Request Method:', event.httpMethod);
+  console.log('Request Content-Type:', event.headers?.['content-type'] || event.headers?.['Content-Type']);
+  console.log('Request Body Length:', event.body ? event.body.length : 0);
+  console.log('Request Body Raw:', event.body ? (event.body.length > 500 ? event.body.slice(0, 500) + '...' : event.body) : 'null');
+  console.log('Request isBase64Encoded:', event.isBase64Encoded);
 
   context.callbackWaitsForEmptyEventLoop = false;
 
