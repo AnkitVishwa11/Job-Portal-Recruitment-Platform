@@ -46,6 +46,7 @@ const login = catchAsync(async (req, res) => {
   return ApiResponse.success(res, 'Login successful', {
     user: result.user,
     accessToken: result.accessToken,
+    refreshToken: result.refreshToken,
   });
 });
 

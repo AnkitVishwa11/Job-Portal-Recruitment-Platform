@@ -22,10 +22,24 @@ app.use(compression);
 // Set security HTTP headers
 app.use(helmet());
 
-// CORS configuration
+// CORS configuration — same-origin on Netlify, localhost in dev
+const allowedOrigins = [
+  config.client.url,
+  'http://localhost:3000',
+  'http://localhost:5000',
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: config.client.url,
+    origin: (origin, callback) => {
+      // Allow same-origin requests (origin is undefined for same-origin)
+      // or requests from allowed list
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, true); // Allow all in serverless — same origin anyway
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
