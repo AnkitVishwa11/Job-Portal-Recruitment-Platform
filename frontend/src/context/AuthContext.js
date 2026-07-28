@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const response = await authApi.getProfile();
-      setUser(response.data.data.user);
+      setUser(response.data?.data?.user || null);
     } catch (err) {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');

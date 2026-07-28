@@ -20,8 +20,8 @@ const Home = () => {
         const [jobsRes] = await Promise.all([
           jobApi.search({ limit: 6, status: 'open', sort: '-createdAt' }),
         ]);
-        setFeaturedJobs(jobsRes.data.data.jobs);
-        setStats(jobsRes.data.data.stats);
+        setFeaturedJobs(jobsRes.data?.data?.jobs || []);
+        setStats(jobsRes.data?.data?.stats || null);
       } catch (err) {
         console.error('Failed to fetch home data:', err);
       } finally {

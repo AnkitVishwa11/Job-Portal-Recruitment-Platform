@@ -6,7 +6,6 @@ const app = require('../../backend/src/app');
 const connectDB = require('../../backend/src/config/database');
 
 let conn = null;
-
 const serverlessHandler = serverless(app);
 
 module.exports.handler = async (event, context) => {
@@ -22,10 +21,17 @@ module.exports.handler = async (event, context) => {
     console.error('Database connection error:', error);
   }
 
-  // When Netlify redirects /api/* to /.netlify/functions/api/:splat,
-  // event.path is the ORIGINAL path from the client (e.g. /api/auth/login).
-  // Express is mounted at app.use('/api', ...) so this is already correct.
-  // No path normalization needed.
+  // Netlify passes event.path as the FULL function URL path:
+  // e.g. /.netlify/functions/api/auth/login
+  // Express is mounted at app.use('/api', ...) so we need to
+  // transform: /.netlify/functions/api/auth/login → /api/auth/login
+  const rawPath = event.path || '/';
+  if (rawPath.startsWith('/.netlify/functions/api')) {
+    const rest = rawPath.slice('/.netlify/functions/api'.length);
+    event.path = '/api' + (rest.startsWith('/') ? rest : '/' + rest);
+    if (event.path === '/api') event.path = '/api/';
+  }
+  // If path already starts with /api (direct call via redirect), leave as-is
 
   return serverlessHandler(event, context);
 };
