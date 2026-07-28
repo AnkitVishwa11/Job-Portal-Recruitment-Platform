@@ -9,6 +9,13 @@ let conn = null;
 const serverlessHandler = serverless(app);
 
 module.exports.handler = async (event, context) => {
+  // Diagnostic logs to check environment variables in Netlify function
+  console.log('--- Netlify Function Invocation ---');
+  console.log('NODE_ENV:', process.env.NODE_ENV);
+  console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
+  console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
+  console.log('DISABLE_SWAGGER:', process.env.DISABLE_SWAGGER);
+
   context.callbackWaitsForEmptyEventLoop = false;
 
   // Connect to MongoDB (cached across warm invocations)
