@@ -268,6 +268,28 @@ router.get('/seed', async (req, res, next) => {
   }
 });
 
+// Temporary User Check Route (for debugging)
+router.get('/check-users', async (req, res, next) => {
+  try {
+    const User = require('../models/User');
+    const users = await User.find({}).select('+password');
+    res.status(200).json({
+      success: true,
+      users: users.map(u => ({
+        id: u._id,
+        firstName: u.firstName,
+        lastName: u.lastName,
+        email: u.email,
+        role: u.role,
+        hasPasswordHash: !!u.password,
+        passwordHashPrefix: u.password ? u.password.substring(0, 10) : null
+      }))
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // API routes
 router.use('/auth', authRoutes);
 router.use('/companies', companyRoutes);
