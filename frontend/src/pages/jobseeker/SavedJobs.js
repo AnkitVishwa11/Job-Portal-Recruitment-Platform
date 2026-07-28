@@ -15,7 +15,7 @@ const JobSeekerSavedJobs = () => {
     try {
       setLoading(true);
       const res = await savedJobApi.getAll({ sort: '-createdAt' });
-      setSavedJobs(res.data?.data?.savedJobs || []);
+      setSavedJobs(res.data?.data?.jobs || res.data?.data?.savedJobs || []);
       setError(null);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch saved jobs');

@@ -116,12 +116,12 @@ const JobSeekerDashboard = () => {
                         <div className="d-flex justify-content-between align-items-start">
                           <div>
                             <h6 className="mb-1">
-                              <Link to={`/jobs/${app.job?._id}`} className="text-decoration-none">
-                                {app.job?.title || 'Job Title'}
+                              <Link to={`/jobs/${app.jobId?._id || app.job?._id}`} className="text-decoration-none">
+                                {app.jobId?.title || app.job?.title || 'Job Title'}
                               </Link>
                             </h6>
                             <small className="text-muted d-block">
-                              {app.company?.name || app.job?.company?.name || 'Company'}
+                              {app.companyId?.companyName || app.company?.name || app.jobId?.companyId?.companyName || app.job?.company?.name || 'Company'}
                             </small>
                             <small className="text-muted">
                               Applied {timeAgo(app.createdAt)}

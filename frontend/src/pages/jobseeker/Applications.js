@@ -83,18 +83,18 @@ const JobSeekerApplications = () => {
                         <td className="ps-4 py-3">
                           <div>
                             <h6 className="fw-bold mb-1">
-                              <Link to={`/jobs/${app.job?._id}`} className="text-decoration-none text-dark">
-                                {app.job?.title || 'Unknown Job'}
+                              <Link to={`/jobs/${app.jobId?._id || app.job?._id}`} className="text-decoration-none text-dark">
+                                {app.jobId?.title || app.job?.title || 'Unknown Job'}
                               </Link>
                             </h6>
                             <span className="text-muted small">
                               <i className="bi bi-building me-1"></i>
-                              {app.company?.name || app.job?.company?.name || 'Unknown Company'}
+                              {app.companyId?.companyName || app.company?.name || app.jobId?.companyId?.companyName || app.job?.company?.name || 'Unknown Company'}
                             </span>
-                            {app.job?.location && (
+                            {(app.jobId?.location || app.job?.location) && (
                               <span className="text-muted small ms-3">
                                 <i className="bi bi-geo-alt me-1"></i>
-                                {app.job.location}
+                                {app.jobId?.location || app.job?.location}
                               </span>
                             )}
                           </div>
@@ -109,7 +109,7 @@ const JobSeekerApplications = () => {
                         </td>
                         <td className="pe-4 py-3 text-end">
                           <div className="d-flex justify-content-end gap-2">
-                            <Link to={`/jobs/${app.job?._id}`} className="btn btn-sm btn-outline-primary">
+                            <Link to={`/jobs/${app.jobId?._id || app.job?._id}`} className="btn btn-sm btn-outline-primary">
                               View Job
                             </Link>
                             {app.status !== 'withdrawn' && app.status !== 'rejected' && app.status !== 'hired' && (
