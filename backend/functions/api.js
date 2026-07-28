@@ -10,6 +10,7 @@ const serverlessHandler = serverless(app, {
   request: (request, event, context) => {
     request.apiGateway = { event, context };
   },
+  binary: ['multipart/form-data', 'application/pdf', 'application/octet-stream'],
 });
 
 module.exports.handler = async (event, context) => {
