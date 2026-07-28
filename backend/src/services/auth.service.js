@@ -45,7 +45,8 @@ const verifyRefreshToken = (token) => {
  * @returns {Object} User, access token, and refresh token
  */
 const register = async (userData) => {
-  const existingUser = await User.findOne({ email: userData.email });
+  const email = userData.email.toLowerCase();
+  const existingUser = await User.findOne({ email });
   if (existingUser) {
     throw new ApiError(409, 'An account with this email already exists');
   }
@@ -53,7 +54,7 @@ const register = async (userData) => {
   const user = await User.create({
     firstName: userData.firstName,
     lastName: userData.lastName,
-    email: userData.email,
+    email,
     password: userData.password,
     role: userData.role,
     phone: userData.phone || '',
@@ -80,7 +81,7 @@ const register = async (userData) => {
  * @returns {Object} User, access token, and refresh token
  */
 const login = async (email, password) => {
-  const user = await User.findOne({ email }).select('+password +refreshToken');
+  const user = await User.findOne({ email: email.toLowerCase() }).select('+password +refreshToken');
   if (!user) {
     throw new ApiError(401, 'Invalid email or password');
   }
