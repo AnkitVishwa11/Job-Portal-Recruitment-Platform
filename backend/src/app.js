@@ -89,7 +89,7 @@ app.use(cookieParser(config.cookie.secret));
 
 // Fallback manual parser for serverless environments (Netlify)
 app.use((req, res, next) => {
-  if (Buffer.isBuffer(req.body)) {
+  if (Buffer.isBuffer(req.body) && req.body.length > 0) {
     try {
       const bodyStr = req.body.toString('utf8');
       req.body = JSON.parse(bodyStr);
