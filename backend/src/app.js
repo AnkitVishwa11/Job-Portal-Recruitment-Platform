@@ -70,6 +70,23 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser(config.cookie.secret));
 
+// Fallback manual parser for serverless environments (Netlify)
+app.use((req, res, next) => {
+  if ((!req.body || Object.keys(req.body).length === 0) && req.apiGateway?.event?.body) {
+    try {
+      let bodyStr = req.apiGateway.event.body;
+      if (req.apiGateway.event.isBase64Encoded) {
+        bodyStr = Buffer.from(bodyStr, 'base64').toString('utf8');
+      }
+      req.body = JSON.parse(bodyStr);
+      console.log('Manually parsed request body from event:', req.body);
+    } catch (err) {
+      console.error('Manual body parser error:', err.message);
+    }
+  }
+  next();
+});
+
 // =====================================================
 // Logging Middleware
 // =====================================================
