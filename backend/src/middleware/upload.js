@@ -1,13 +1,21 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const config = require('../config');
 const ApiError = require('../utils/ApiError');
 
 // Ensure upload directory exists
-const uploadDir = path.join(__dirname, '../../', config.upload.path);
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+const uploadDir = process.env.NODE_ENV === 'production' 
+  ? path.join(os.tmpdir(), 'uploads')
+  : path.join(__dirname, '../../', config.upload.path);
+
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (err) {
+  console.warn('Could not create upload directory:', err.message);
 }
 
 // Configure storage

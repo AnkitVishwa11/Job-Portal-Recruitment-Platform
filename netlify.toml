@@ -1,13 +1,22 @@
 [build]
-  base = "frontend"
   command = "npm run build"
-  publish = "build"
+  publish = "frontend/build"
+  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "18"
   CI = "false"
 
-# SPA redirect — all routes go to index.html
+[functions]
+  node_bundler = "esbuild"
+
+# API requests redirected to Netlify serverless function
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+
+# SPA redirect — all other routes go to index.html
 [[redirects]]
   from = "/*"
   to = "/index.html"

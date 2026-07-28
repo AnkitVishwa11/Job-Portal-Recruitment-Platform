@@ -1,13 +1,24 @@
 const mongoose = require('mongoose');
 const config = require('./index');
 
+let isConnected = false;
+
 const connectDB = async () => {
+  if (isConnected || mongoose.connection.readyState === 1) {
+    return mongoose.connection;
+  }
+
   try {
     const conn = await mongoose.connect(config.mongodb.uri);
+    isConnected = true;
     console.log(`MongoDB Connected: ${conn.connection.host}`);
+    return conn;
   } catch (error) {
     console.error(`MongoDB Connection Error: ${error.message}`);
-    process.exit(1);
+    if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
+      process.exit(1);
+    }
+    throw error;
   }
 };
 
