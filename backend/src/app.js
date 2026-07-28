@@ -15,6 +15,20 @@ const app = express();
 // Trust proxy for header population on Netlify/reverse proxies
 app.set('trust proxy', 1);
 
+// Debug middleware to inspect request properties in Netlify
+app.use((req, res, next) => {
+  console.log('=== Express Request Debug ===');
+  console.log('Method:', req.method);
+  console.log('Path:', req.path);
+  console.log('Headers:', req.headers);
+  console.log('req.body:', req.body);
+  console.log('req.apiGateway exists:', !!req.apiGateway);
+  console.log('req.apiGateway.event exists:', !!req.apiGateway?.event);
+  console.log('req.apiGateway.event.body exists:', !!req.apiGateway?.event?.body);
+  console.log('==============================');
+  next();
+});
+
 // =====================================================
 // Security & Performance Middleware
 // =====================================================
