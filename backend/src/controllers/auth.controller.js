@@ -84,6 +84,12 @@ const login = catchAsync(async (req, res) => {
  * @access  Public
  */
 const refreshToken = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    const mockAccessToken = 'mock-access-token-' + Date.now();
+    return ApiResponse.success(res, 'Token refreshed (Demo Mode)', {
+      accessToken: mockAccessToken,
+    });
+  }
   const token = req.cookies.refreshToken || req.body.refreshToken;
   const result = await authService.refreshToken(token);
 
@@ -103,10 +109,10 @@ const refreshToken = catchAsync(async (req, res) => {
  * @access  Private
  */
 const logout = catchAsync(async (req, res) => {
-  await authService.logout(req.user._id);
-
+  if (isDbConnected()) {
+    await authService.logout(req.user._id);
+  }
   res.clearCookie('refreshToken', COOKIE_OPTIONS);
-
   return ApiResponse.success(res, 'Logout successful');
 });
 
@@ -129,6 +135,9 @@ const getProfile = catchAsync(async (req, res) => {
  * @access  Private
  */
 const updateProfile = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'Profile updated successfully (Demo Mode)', { user: { ...(req.user || MOCK_USER), ...req.body } });
+  }
   const user = await authService.updateProfile(req.user._id, req.body);
   return ApiResponse.success(res, 'Profile updated successfully', { user });
 });
@@ -139,6 +148,9 @@ const updateProfile = catchAsync(async (req, res) => {
  * @access  Private
  */
 const changePassword = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'Password changed successfully (Demo Mode). Please log in again.');
+  }
   const { currentPassword, newPassword } = req.body;
   await authService.changePassword(req.user._id, currentPassword, newPassword);
   return ApiResponse.success(res, 'Password changed successfully. Please log in again.');
@@ -150,8 +162,10 @@ const changePassword = catchAsync(async (req, res) => {
  * @access  Public
  */
 const forgotPassword = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'Password reset token sent to email (Demo Mode)', { resetToken: 'demo-reset-token' });
+  }
   const resetToken = await authService.forgotPassword(req.body.email);
-  // In production, send this token via email
   return ApiResponse.success(res, 'Password reset token sent to email', {
     resetToken,
   });
@@ -163,6 +177,9 @@ const forgotPassword = catchAsync(async (req, res) => {
  * @access  Public
  */
 const resetPassword = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'Password reset successful (Demo Mode). Please log in with your new password.');
+  }
   const { token, password } = req.body;
   await authService.resetPassword(token, password);
   return ApiResponse.success(res, 'Password reset successful. Please log in with your new password.');

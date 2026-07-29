@@ -95,10 +95,63 @@ const MOCK_STATS = {
   hired: 45,
 };
 
+const MOCK_APPLICATIONS = [
+  {
+    _id: '60c72b2f9b1d8b2bad000010',
+    jobId: MOCK_JOBS[0],
+    job: { title: MOCK_JOBS[0].title, _id: MOCK_JOBS[0]._id, location: MOCK_JOBS[0].location },
+    userId: MOCK_USER._id,
+    companyId: MOCK_JOBS[0].companyId,
+    company: { name: MOCK_JOBS[0].companyId.companyName },
+    resume: 'mock_resume.pdf',
+    coverLetter: 'I am very interested in this role.',
+    status: 'pending',
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    _id: '60c72b2f9b1d8b2bad000011',
+    jobId: MOCK_JOBS[1],
+    job: { title: MOCK_JOBS[1].title, _id: MOCK_JOBS[1]._id, location: MOCK_JOBS[1].location },
+    userId: MOCK_USER._id,
+    companyId: MOCK_JOBS[1].companyId,
+    company: { name: MOCK_JOBS[1].companyId.companyName },
+    resume: 'mock_resume.pdf',
+    coverLetter: 'Looking forward to discussing my backend experience.',
+    status: 'shortlisted',
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+];
+
+const MOCK_COMPANIES = [
+  MOCK_JOBS[0].companyId,
+  MOCK_JOBS[1].companyId,
+  MOCK_JOBS[2].companyId,
+];
+
+const MOCK_SAVED_JOBS = [
+  {
+    _id: '60c72b2f9b1d8b2bad000020',
+    jobId: MOCK_JOBS[0],
+    job: MOCK_JOBS[0],
+    userId: MOCK_USER._id,
+    notes: 'Applied on Monday',
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+];
+
+const MOCK_NOTIFICATIONS = [
+  {
+    _id: '60c72b2f9b1d8b2bad000030',
+    userId: MOCK_USER._id,
+    title: 'Application Shortlisted',
+    message: 'Your application for Software Engineer (Node.js/Express) was shortlisted!',
+    type: 'application_status',
+    isRead: false,
+    createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+  },
+];
+
 const isDbConnected = () => {
-  if (process.env.NODE_ENV === 'production') {
-    return true;
-  }
   return mongoose.connection.readyState === 1;
 };
 
@@ -106,5 +159,10 @@ module.exports = {
   MOCK_USER,
   MOCK_JOBS,
   MOCK_STATS,
+  MOCK_APPLICATIONS,
+  MOCK_COMPANIES,
+  MOCK_SAVED_JOBS,
+  MOCK_NOTIFICATIONS,
   isDbConnected,
 };
+

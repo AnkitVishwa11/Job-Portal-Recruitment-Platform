@@ -1,6 +1,7 @@
 const applicationService = require('../services/application.service');
 const catchAsync = require('../utils/catchAsync');
 const ApiResponse = require('../utils/ApiResponse');
+const { isDbConnected, MOCK_APPLICATIONS } = require('../utils/mockFallback');
 
 /**
  * @desc    Apply for a job
@@ -8,6 +9,12 @@ const ApiResponse = require('../utils/ApiResponse');
  * @access  Private/JobSeeker
  */
 const applyForJob = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.created(res, 'Application submitted successfully (Demo Mode)', {
+      application: MOCK_APPLICATIONS[0],
+    });
+  }
+
   let resumeValue = req.body.resume;
   if (req.file) {
     const base64Data = req.file.buffer.toString('base64');
@@ -31,6 +38,11 @@ const applyForJob = catchAsync(async (req, res) => {
  * @access  Private
  */
 const getApplicationById = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    const application = MOCK_APPLICATIONS.find((a) => a._id === req.params.id) || MOCK_APPLICATIONS[0];
+    return ApiResponse.success(res, 'Application retrieved successfully (Demo Mode)', { application });
+  }
+
   const application = await applicationService.getApplicationById(req.params.id);
   return ApiResponse.success(res, 'Application retrieved successfully', { application });
 });
@@ -41,6 +53,16 @@ const getApplicationById = catchAsync(async (req, res) => {
  * @access  Private/Recruiter
  */
 const getJobApplications = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'Applications retrieved successfully (Demo Mode)', {
+      applications: MOCK_APPLICATIONS,
+      total: MOCK_APPLICATIONS.length,
+      page: 1,
+      limit: 10,
+      totalPages: 1,
+    });
+  }
+
   const { page, limit, skip } = req.pagination;
   const result = await applicationService.getJobApplications(
     req.params.jobId,
@@ -57,6 +79,16 @@ const getJobApplications = catchAsync(async (req, res) => {
  * @access  Private/JobSeeker
  */
 const getUserApplications = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'Applications retrieved successfully (Demo Mode)', {
+      applications: MOCK_APPLICATIONS,
+      total: MOCK_APPLICATIONS.length,
+      page: 1,
+      limit: 10,
+      totalPages: 1,
+    });
+  }
+
   const { page, limit, skip } = req.pagination;
   const result = await applicationService.getUserApplications(req.user._id, { page, limit, skip });
   return ApiResponse.success(res, 'Applications retrieved successfully', result);
@@ -68,6 +100,11 @@ const getUserApplications = catchAsync(async (req, res) => {
  * @access  Private/Recruiter
  */
 const updateApplicationStatus = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'Application status updated successfully (Demo Mode)', {
+      application: { ...MOCK_APPLICATIONS[0], status: req.body.status || 'updated' },
+    });
+  }
   const { status, note } = req.body;
   const application = await applicationService.updateApplicationStatus(
     req.params.id,
@@ -84,6 +121,11 @@ const updateApplicationStatus = catchAsync(async (req, res) => {
  * @access  Private/Recruiter
  */
 const shortlistApplication = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'Application shortlisted successfully (Demo Mode)', {
+      application: { ...MOCK_APPLICATIONS[0], status: 'shortlisted' },
+    });
+  }
   const application = await applicationService.shortlistApplication(req.params.id, req.user._id);
   return ApiResponse.success(res, 'Application shortlisted successfully', { application });
 });
@@ -94,6 +136,11 @@ const shortlistApplication = catchAsync(async (req, res) => {
  * @access  Private/Recruiter
  */
 const rejectApplication = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'Application rejected (Demo Mode)', {
+      application: { ...MOCK_APPLICATIONS[0], status: 'rejected' },
+    });
+  }
   const application = await applicationService.rejectApplication(
     req.params.id,
     req.user._id,
@@ -108,6 +155,11 @@ const rejectApplication = catchAsync(async (req, res) => {
  * @access  Private/Recruiter
  */
 const hireApplicant = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'Applicant hired successfully (Demo Mode)', {
+      application: { ...MOCK_APPLICATIONS[0], status: 'hired' },
+    });
+  }
   const application = await applicationService.hireApplicant(req.params.id, req.user._id);
   return ApiResponse.success(res, 'Applicant hired successfully', { application });
 });
@@ -118,6 +170,9 @@ const hireApplicant = catchAsync(async (req, res) => {
  * @access  Private/JobSeeker
  */
 const withdrawApplication = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'Application withdrawn successfully (Demo Mode)');
+  }
   await applicationService.withdrawApplication(req.params.id, req.user._id);
   return ApiResponse.success(res, 'Application withdrawn successfully');
 });
@@ -128,10 +183,21 @@ const withdrawApplication = catchAsync(async (req, res) => {
  * @access  Private/Admin
  */
 const getAllApplications = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'All applications retrieved successfully (Demo Mode)', {
+      applications: MOCK_APPLICATIONS,
+      total: MOCK_APPLICATIONS.length,
+      page: 1,
+      limit: 10,
+      totalPages: 1,
+    });
+  }
   const { page, limit, skip } = req.pagination;
   const result = await applicationService.getAllApplications({ page, limit, skip });
   return ApiResponse.success(res, 'All applications retrieved successfully', result);
 });
+
+
 
 /**
  * @desc    Download resume file

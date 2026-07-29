@@ -9,6 +9,9 @@ const { isDbConnected, MOCK_JOBS, MOCK_STATS } = require('../utils/mockFallback'
  * @access  Private/Recruiter
  */
 const createJob = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.created(res, 'Job created successfully (Demo Mode)', { job: MOCK_JOBS[0] });
+  }
   const companyId = req.userCompany._id;
   const job = await jobService.createJob(req.body, req.user._id, companyId);
   return ApiResponse.created(res, 'Job created successfully', { job });
@@ -36,6 +39,9 @@ const getJobById = catchAsync(async (req, res) => {
  * @access  Private/Recruiter
  */
 const updateJob = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'Job updated successfully (Demo Mode)', { job: MOCK_JOBS[0] });
+  }
   const job = await jobService.updateJob(req.params.id, req.user._id, req.body);
   return ApiResponse.success(res, 'Job updated successfully', { job });
 });
@@ -46,6 +52,9 @@ const updateJob = catchAsync(async (req, res) => {
  * @access  Private/Recruiter
  */
 const deleteJob = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'Job deleted successfully (Demo Mode)');
+  }
   await jobService.deleteJob(req.params.id, req.user._id);
   return ApiResponse.success(res, 'Job deleted successfully');
 });
@@ -56,6 +65,9 @@ const deleteJob = catchAsync(async (req, res) => {
  * @access  Private/Recruiter
  */
 const closeJob = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'Job closed successfully (Demo Mode)', { job: MOCK_JOBS[0] });
+  }
   const job = await jobService.closeJob(req.params.id, req.user._id);
   return ApiResponse.success(res, 'Job closed successfully', { job });
 });
@@ -66,6 +78,15 @@ const closeJob = catchAsync(async (req, res) => {
  * @access  Public
  */
 const getJobsByCompany = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'Jobs retrieved successfully (Demo Mode)', {
+      jobs: MOCK_JOBS,
+      total: MOCK_JOBS.length,
+      page: 1,
+      limit: 10,
+      totalPages: 1,
+    });
+  }
   const { page, limit, skip } = req.pagination;
   const result = await jobService.getJobsByCompany(
     req.params.companyId,
@@ -81,6 +102,15 @@ const getJobsByCompany = catchAsync(async (req, res) => {
  * @access  Private/Recruiter
  */
 const getRecruiterJobs = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'Jobs retrieved successfully (Demo Mode)', {
+      jobs: MOCK_JOBS,
+      total: MOCK_JOBS.length,
+      page: 1,
+      limit: 10,
+      totalPages: 1,
+    });
+  }
   const { page, limit, skip } = req.pagination;
   const result = await jobService.getRecruiterJobs(req.user._id, { page, limit, skip });
   return ApiResponse.success(res, 'Jobs retrieved successfully', result);
@@ -125,6 +155,15 @@ const searchJobs = catchAsync(async (req, res) => {
  * @access  Private/Admin
  */
 const getAllJobs = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'All jobs retrieved successfully (Demo Mode)', {
+      jobs: MOCK_JOBS,
+      total: MOCK_JOBS.length,
+      page: 1,
+      limit: 10,
+      totalPages: 1,
+    });
+  }
   const { page, limit, skip } = req.pagination;
   const result = await jobService.getAllJobs({ page, limit, skip });
   return ApiResponse.success(res, 'All jobs retrieved successfully', result);

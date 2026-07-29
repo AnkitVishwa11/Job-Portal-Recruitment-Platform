@@ -1,6 +1,7 @@
 const notificationService = require('../services/notification.service');
 const catchAsync = require('../utils/catchAsync');
 const ApiResponse = require('../utils/ApiResponse');
+const { isDbConnected, MOCK_NOTIFICATIONS } = require('../utils/mockFallback');
 
 /**
  * @desc    Get user notifications
@@ -8,6 +9,15 @@ const ApiResponse = require('../utils/ApiResponse');
  * @access  Private
  */
 const getNotifications = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'Notifications retrieved successfully (Demo Mode)', {
+      notifications: MOCK_NOTIFICATIONS,
+      total: MOCK_NOTIFICATIONS.length,
+      page: 1,
+      limit: 10,
+      totalPages: 1,
+    });
+  }
   const { page, limit, skip } = req.pagination;
   const filters = {};
 
@@ -29,6 +39,9 @@ const getNotifications = catchAsync(async (req, res) => {
  * @access  Private
  */
 const getUnreadCount = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'Unread count retrieved (Demo Mode)', { count: 1 });
+  }
   const count = await notificationService.getUnreadCount(req.user._id);
   return ApiResponse.success(res, 'Unread count retrieved', { count });
 });
