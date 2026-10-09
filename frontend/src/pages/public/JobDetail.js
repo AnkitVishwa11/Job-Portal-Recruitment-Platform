@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { jobApi, applicationApi, savedJobApi } from '../../api/authApi';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
-import { formatSalary, timeAgo, capitalize } from '../../utils/helpers';
+import { formatSalary, timeAgo } from '../../utils/helpers';
 import { toast } from 'react-toastify';
 
 const JobDetail = () => {
