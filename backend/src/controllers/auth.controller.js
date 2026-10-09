@@ -16,16 +16,25 @@ const COOKIE_OPTIONS = {
  */
 const register = catchAsync(async (req, res) => {
   if (!isDbConnected()) {
-    const mockAccessToken = 'mock-access-token-' + Date.now();
-    const mockRefreshToken = 'mock-refresh-token-' + Date.now();
-    res.cookie('refreshToken', mockRefreshToken, {
+    const userRole = req.body.role || 'jobseeker';
+    const mockUser = {
+      _id: '60c72b2f9b1d8b2bad000001',
+      firstName: req.body.firstName || 'Demo',
+      lastName: req.body.lastName || 'User',
+      email: (req.body.email || MOCK_USER.email).toLowerCase(),
+      role: userRole,
+      isActive: true,
+    };
+    const accessToken = authService.generateAccessToken(mockUser);
+    const refreshToken = authService.generateRefreshToken(mockUser);
+    res.cookie('refreshToken', refreshToken, {
       ...COOKIE_OPTIONS,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     return ApiResponse.created(res, 'Registration successful (Demo Mode)', {
-      user: { ...MOCK_USER, email: req.body.email || MOCK_USER.email, role: req.body.role || MOCK_USER.role },
-      accessToken: mockAccessToken,
-      refreshToken: mockRefreshToken,
+      user: mockUser,
+      accessToken,
+      refreshToken,
     });
   }
   const result = await authService.register(req.body);
@@ -50,17 +59,28 @@ const register = catchAsync(async (req, res) => {
  */
 const login = catchAsync(async (req, res) => {
   if (!isDbConnected()) {
-    const mockAccessToken = 'mock-access-token-' + Date.now();
-    const mockRefreshToken = 'mock-refresh-token-' + Date.now();
-    res.cookie('refreshToken', mockRefreshToken, {
+    const emailLower = (req.body.email || '').toLowerCase();
+    const userRole = emailLower.includes('recruiter')
+      ? 'recruiter'
+      : (emailLower.includes('admin') ? 'admin' : 'jobseeker');
+    const mockUser = {
+      _id: '60c72b2f9b1d8b2bad000001',
+      firstName: userRole === 'recruiter' ? 'Demo Recruiter' : (userRole === 'admin' ? 'Demo Admin' : 'Demo Candidate'),
+      lastName: 'User',
+      email: req.body.email || MOCK_USER.email,
+      role: userRole,
+      isActive: true,
+    };
+    const accessToken = authService.generateAccessToken(mockUser);
+    const refreshToken = authService.generateRefreshToken(mockUser);
+    res.cookie('refreshToken', refreshToken, {
       ...COOKIE_OPTIONS,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    const userRole = req.body.email?.includes('recruiter') ? 'recruiter' : (req.body.email?.includes('admin') ? 'admin' : 'jobseeker');
     return ApiResponse.success(res, 'Login successful (Demo Mode)', {
-      user: { ...MOCK_USER, email: req.body.email || MOCK_USER.email, role: userRole },
-      accessToken: mockAccessToken,
-      refreshToken: mockRefreshToken,
+      user: mockUser,
+      accessToken,
+      refreshToken,
     });
   }
   const { email, password } = req.body;
@@ -85,9 +105,23 @@ const login = catchAsync(async (req, res) => {
  */
 const refreshToken = catchAsync(async (req, res) => {
   if (!isDbConnected()) {
-    const mockAccessToken = 'mock-access-token-' + Date.now();
+    const token = req.cookies.refreshToken || req.body.refreshToken;
+    let userRole = 'jobseeker';
+    if (token) {
+      try {
+        const decoded = authService.verifyRefreshToken(token);
+        if (decoded?.role) userRole = decoded.role;
+      } catch (e) {}
+    }
+    const mockUser = {
+      _id: '60c72b2f9b1d8b2bad000001',
+      role: userRole,
+      email: MOCK_USER.email,
+      isActive: true,
+    };
+    const accessToken = authService.generateAccessToken(mockUser);
     return ApiResponse.success(res, 'Token refreshed (Demo Mode)', {
-      accessToken: mockAccessToken,
+      accessToken,
     });
   }
   const token = req.cookies.refreshToken || req.body.refreshToken;

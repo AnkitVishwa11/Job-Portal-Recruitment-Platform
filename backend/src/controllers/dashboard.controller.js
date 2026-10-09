@@ -1,7 +1,14 @@
 const dashboardService = require('../services/dashboard.service');
 const catchAsync = require('../utils/catchAsync');
 const ApiResponse = require('../utils/ApiResponse');
-const { isDbConnected, MOCK_USER } = require('../utils/mockFallback');
+const {
+  isDbConnected,
+  MOCK_USER,
+  MOCK_JOBS,
+  MOCK_COMPANIES,
+  MOCK_APPLICATIONS,
+  MOCK_SAVED_JOBS,
+} = require('../utils/mockFallback');
 
 /**
  * @desc    Get recruiter dashboard
@@ -10,19 +17,27 @@ const { isDbConnected, MOCK_USER } = require('../utils/mockFallback');
  */
 const getRecruiterDashboard = catchAsync(async (req, res) => {
   if (!isDbConnected()) {
+    const company = MOCK_COMPANIES[0] || { _id: 'mock_company_1', companyName: 'Demo Tech Corp' };
     return ApiResponse.success(res, 'Recruiter dashboard data retrieved (Demo Mode)', {
-      company: { id: 'mock_company_1', name: 'Mock Corporation' },
+      company: {
+        id: company._id,
+        name: company.companyName,
+        logo: company.logo || '',
+        isVerified: true,
+      },
       stats: {
-        totalJobs: 3,
-        activeJobs: 3,
-        totalApplications: 12,
-        pendingApplications: 5,
-        shortlistedCandidates: 4,
-        hiredCandidates: 2,
+        totalJobs: MOCK_JOBS.length,
+        activeJobs: MOCK_JOBS.length,
+        totalApplications: MOCK_APPLICATIONS.length,
+        pendingApplications: 1,
+        shortlistedCandidates: 1,
+        reviewedApplications: 1,
+        hiredCandidates: 0,
+        rejectedCandidates: 0,
         totalViews: 450,
       },
-      recentJobs: [],
-      recentApplications: [],
+      recentJobs: MOCK_JOBS,
+      recentApplications: MOCK_APPLICATIONS,
     });
   }
   const data = await dashboardService.getRecruiterDashboard(req.user._id);
@@ -39,16 +54,17 @@ const getJobSeekerDashboard = catchAsync(async (req, res) => {
     return ApiResponse.success(res, 'Job seeker dashboard data retrieved (Demo Mode)', {
       profile: req.user || MOCK_USER,
       stats: {
-        totalApplications: 5,
-        pendingApplications: 2,
+        totalApplications: MOCK_APPLICATIONS.length,
+        pendingApplications: 1,
         shortlistedApplications: 1,
-        rejectedApplications: 1,
-        hiredApplications: 1,
+        rejectedApplications: 0,
+        hiredApplications: 0,
         withdrawnApplications: 0,
-        savedJobsCount: 3,
+        savedJobsCount: MOCK_SAVED_JOBS.length,
+        profileCompletion: 85,
       },
-      recentApplications: [],
-      recentSavedJobs: [],
+      recentApplications: MOCK_APPLICATIONS,
+      recentSavedJobs: MOCK_SAVED_JOBS,
     });
   }
   const data = await dashboardService.getJobSeekerDashboard(req.user._id);

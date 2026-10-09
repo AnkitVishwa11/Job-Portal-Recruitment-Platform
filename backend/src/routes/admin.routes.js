@@ -6,6 +6,7 @@ const catchAsync = require('../utils/catchAsync');
 const ApiResponse = require('../utils/ApiResponse');
 const ApiError = require('../utils/ApiError');
 const paginationMiddleware = require('../middleware/pagination');
+const { isDbConnected, MOCK_USER, MOCK_JOBS, MOCK_APPLICATIONS } = require('../utils/mockFallback');
 
 // All admin routes are protected and require admin role
 router.use(protect, isAdmin);
@@ -18,6 +19,20 @@ router.use(protect, isAdmin);
 router.get(
   '/dashboard',
   catchAsync(async (req, res) => {
+    if (!isDbConnected()) {
+      return ApiResponse.success(res, 'Dashboard data retrieved (Demo Mode)', {
+        stats: {
+          totalUsers: 155,
+          totalRecruiters: 15,
+          totalJobSeekers: 140,
+          totalJobs: MOCK_JOBS.length,
+          totalApplications: MOCK_APPLICATIONS.length,
+          totalCompanies: 5,
+        },
+        recentJobs: MOCK_JOBS,
+        recentApplications: MOCK_APPLICATIONS,
+      });
+    }
     const [totalUsers, totalRecruiters, totalJobSeekers, totalJobs, totalApplications, totalCompanies] =
       await Promise.all([
         User.countDocuments({}),
@@ -63,6 +78,26 @@ router.get(
   '/users',
   paginationMiddleware(),
   catchAsync(async (req, res) => {
+    if (!isDbConnected()) {
+      return ApiResponse.success(res, 'Users retrieved (Demo Mode)', {
+        users: [
+          MOCK_USER,
+          {
+            _id: '60c72b2f9b1d8b2bad000008',
+            firstName: 'Sarah',
+            lastName: 'Recruiter',
+            email: 'recruiter@example.com',
+            role: 'recruiter',
+            isActive: true,
+            createdAt: new Date().toISOString(),
+          },
+        ],
+        total: 2,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      });
+    }
     const { page, limit, skip } = req.pagination;
     const filters = {};
 

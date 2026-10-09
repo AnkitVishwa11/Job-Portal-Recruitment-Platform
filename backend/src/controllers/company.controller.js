@@ -49,6 +49,11 @@ const getCompanyById = catchAsync(async (req, res) => {
  * @access  Private/Recruiter
  */
 const updateCompany = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'Company updated successfully (Demo Mode)', {
+      company: { ...MOCK_COMPANIES[0], ...req.body },
+    });
+  }
   const company = await companyService.updateCompany(req.params.id, req.user._id, req.body);
   return ApiResponse.success(res, 'Company updated successfully', { company });
 });
@@ -59,6 +64,9 @@ const updateCompany = catchAsync(async (req, res) => {
  * @access  Private/Recruiter
  */
 const deleteCompany = catchAsync(async (req, res) => {
+  if (!isDbConnected()) {
+    return ApiResponse.success(res, 'Company deleted successfully (Demo Mode)');
+  }
   await companyService.deleteCompany(req.params.id, req.user._id);
   return ApiResponse.success(res, 'Company deleted successfully');
 });

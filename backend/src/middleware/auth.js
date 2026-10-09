@@ -27,11 +27,28 @@ const protect = catchAsync(async (req, res, next) => {
   }
 
   try {
+    // Handle mock token in Demo Mode
+    if (token.startsWith('mock-')) {
+      const role = token.includes('recruiter')
+        ? 'recruiter'
+        : (token.includes('admin') ? 'admin' : 'jobseeker');
+      req.user = {
+        ...MOCK_USER,
+        role,
+      };
+      return next();
+    }
+
     // Verify token
     const decoded = jwt.verify(token, config.jwt.secret);
 
     if (!isDbConnected()) {
-      req.user = MOCK_USER;
+      req.user = {
+        ...MOCK_USER,
+        _id: decoded.id || MOCK_USER._id,
+        role: decoded.role || MOCK_USER.role,
+        email: decoded.email || MOCK_USER.email,
+      };
       return next();
     }
 

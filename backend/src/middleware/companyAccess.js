@@ -1,6 +1,7 @@
 const { Company } = require('../models');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
+const { isDbConnected, MOCK_COMPANIES } = require('../utils/mockFallback');
 
 /**
  * Middleware to attach the recruiter's company to the request
@@ -8,6 +9,10 @@ const catchAsync = require('../utils/catchAsync');
  */
 const attachCompany = catchAsync(async (req, res, next) => {
   if (req.user && req.user.role === 'recruiter') {
+    if (!isDbConnected()) {
+      req.userCompany = MOCK_COMPANIES[0];
+      return next();
+    }
     const company = await Company.findOne({ userId: req.user._id });
     if (!company) {
       throw new ApiError(400, 'Please create a company profile first');
@@ -22,6 +27,10 @@ const attachCompany = catchAsync(async (req, res, next) => {
  */
 const ensureCompanyOwnership = (paramId = 'id') => {
   return catchAsync(async (req, res, next) => {
+    if (!isDbConnected()) {
+      req.userCompany = MOCK_COMPANIES[0];
+      return next();
+    }
     const company = await Company.findById(req.params[paramId]);
     if (!company) {
       throw new ApiError(404, 'Company not found');
